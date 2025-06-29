@@ -5,9 +5,9 @@ namespace NZWork.API.Data
 {
     public class NZWalksDbContext : DbContext
     {
-        public NZWalksDbContext(DbContextOptions dbContextOptions): base(dbContextOptions) 
+        public NZWalksDbContext(DbContextOptions options)
+    : base(options)
         {
-            
         }
         public DbSet<Difficulty> Difficulties{ get; set; }
         public DbSet<Region> Regions{ get; set; }
