@@ -11,7 +11,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext<NZWalksDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("NZWalksConnectionString")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("NZWolkConnectionString"))); 
 
 //builder.Services.AddDbContextFactory<NZWalksDbContext>(options =>
 //    options.UseSqlServer(builder.Configuration.GetConnectionString("NZWalksConnectionString") ?? throw new InvalidOperationException("Connection string 'NZWalksConnectionString' not found.")));
