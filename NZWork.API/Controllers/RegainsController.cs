@@ -65,7 +65,6 @@ namespace NZWork.API.Controllers
             //Use domain model to create regain
             dbContext.Regions.Add(regionsDomainModel);
             dbContext.SaveChanges();
-
             //Map domain model back to Dto
             var regainDto = new RegionDto
             {
@@ -74,7 +73,37 @@ namespace NZWork.API.Controllers
                 Code = regionsDomainModel.Code,
                 RegionImgUrl = regionsDomainModel.RegionImgUrl
             };
-            return CreatedAtAction(nameof(GetDataById),new {id = regainDto.Id},regainDto); 
+            return CreatedAtAction(nameof(GetDataById), new { id = regainDto.Id }, regainDto);
+        }
+        //Update the regions 
+        [HttpPut]
+        [Route("{id:guid}")]
+        public IActionResult UpdateRegions([FromRoute] Guid id, [FromBody] UpdateRegionRequist updateRegionRequist)
+        {
+            // check Is have or not region
+            var RegionDomainModel = dbContext.Regions.FirstOrDefault(r => r.Id == id);
+            if(RegionDomainModel == null)
+            {   
+                return NotFound();
+            }
+
+            //Map Dto to Domain Model
+            RegionDomainModel.Code = updateRegionRequist.Code;
+            RegionDomainModel.Name = updateRegionRequist.Name;
+            RegionDomainModel.RegionImgUrl = updateRegionRequist.RegionImgUrl;
+
+            dbContext.SaveChanges();
+
+            //Map domain back to DTO
+            var regionDto = new RegionDto
+            {
+                Id = RegionDomainModel.Id,
+                Name = RegionDomainModel.Name,
+                Code = RegionDomainModel.Code,
+                RegionImgUrl = RegionDomainModel.RegionImgUrl
+            };
+
+            return Ok(regionDto);
         }
     }
 }
