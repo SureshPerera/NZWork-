@@ -105,5 +105,20 @@ namespace NZWork.API.Controllers
 
             return Ok(regionDto);
         }
+        [HttpDelete]
+        [Route("{Id:guid}")]
+        public IActionResult DeleteRegions( [FromForm] Guid Id)
+        {
+            //check if Id is valied or not 
+            var regionsDomain = dbContext.Regions.FirstOrDefault(a => a.Id == Id);
+            if(regionsDomain == null)
+            {
+                return NotFound();
+            }
+            //delete regions
+            dbContext.Regions.Remove(regionsDomain);
+            dbContext.SaveChanges();
+            return Ok();
+        }
     }
 }
