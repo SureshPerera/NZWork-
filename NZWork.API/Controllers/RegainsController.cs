@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using NZWork.API.Data;
 using NZWork.API.Model.Domain;
 using NZWork.API.Model.DTO;
+using NZWork.API.Repositories;
 
 namespace NZWork.API.Controllers
 {
@@ -12,17 +14,19 @@ namespace NZWork.API.Controllers
     public class RegainsController : ControllerBase
     {
         private readonly NZWalksDbContext dbContext;
+        private readonly IRegionsRepository regionsRepository;
 
-        public RegainsController(NZWalksDbContext dbContext)
+        public RegainsController(NZWalksDbContext dbContext , IRegionsRepository regionsRepository)
         {
             this.dbContext = dbContext;
+            this.regionsRepository = regionsRepository;
         }
         //GET:http:localahost:1235/api/Regains
         [HttpGet]
-        public IActionResult GetAllData()
+        public async Task<IActionResult> GetAllData()
         {
             //get data into database 
-            var regionDomainModel = dbContext.Regions.ToList();
+            var regionDomainModel = await regionsRepository.GetAllAsync();
             //convert models to DTO
             var regionDto = new List<RegionDto>();
             foreach (var item in regionDomainModel)
@@ -42,9 +46,9 @@ namespace NZWork.API.Controllers
 
         [HttpGet]
         [Route("{Id:guid}")]
-        public IActionResult GetDataById([FromRoute] Guid Id) {
+        public async Task<IActionResult> GetDataById([FromRoute] Guid Id) {
             //var regions = dbContext.Regions.Find(id);
-            var regions = dbContext.Regions.SingleOrDefault(r => r.Id == Id);
+            var regions = await regionsRepository.GetItemById(Id);
             if (regions == null) {
                 return NotFound();
             }
@@ -52,10 +56,9 @@ namespace NZWork.API.Controllers
         }
 
         [HttpPost]
-        public IActionResult CreateData([FromBody] AddRegionRequistDto addRegionRequistDto)
+        public async Task<IActionResult> CreateData([FromBody] AddRegionRequistDto addRegionRequistDto)
         {
             //Map or convert DTO to domain model
-
             var regionsDomainModel = new Region
             {
                 Code = addRegionRequistDto.Code,
@@ -63,8 +66,9 @@ namespace NZWork.API.Controllers
                 RegionImgUrl = addRegionRequistDto.RegionImgUrl
             };
             //Use domain model to create regain
-            dbContext.Regions.Add(regionsDomainModel);
-            dbContext.SaveChanges();
+            await regionsRepository.CreateAsync(regionsDomainModel);
+            
+
             //Map domain model back to Dto
             var regainDto = new RegionDto
             {
@@ -78,46 +82,38 @@ namespace NZWork.API.Controllers
         //Update the regions 
         [HttpPut]
         [Route("{id:guid}")]
-        public IActionResult UpdateRegions([FromRoute] Guid id, [FromBody] UpdateRegionRequist updateRegionRequist)
+        public async Task<IActionResult> UpdateRegions([FromRoute] Guid id, [FromBody] UpdateRegionRequist updateRegionRequist)
         {
-            // check Is have or not region
-            var RegionDomainModel = dbContext.Regions.FirstOrDefault(r => r.Id == id);
-            if(RegionDomainModel == null)
-            {   
-                return NotFound();
-            }
-
-            //Map Dto to Domain Model
-            RegionDomainModel.Code = updateRegionRequist.Code;
-            RegionDomainModel.Name = updateRegionRequist.Name;
-            RegionDomainModel.RegionImgUrl = updateRegionRequist.RegionImgUrl;
-
-            dbContext.SaveChanges();
-
-            //Map domain back to DTO
-            var regionDto = new RegionDto
+            //map Dto to domain model
+            var regionDomainModel = new Region
             {
-                Id = RegionDomainModel.Id,
-                Name = RegionDomainModel.Name,
-                Code = RegionDomainModel.Code,
-                RegionImgUrl = RegionDomainModel.RegionImgUrl
+                Code = updateRegionRequist.Code,
+                Name = updateRegionRequist.Name,
+                RegionImgUrl = updateRegionRequist.RegionImgUrl,
             };
+            // check Is have or not region
+           regionDomainModel = await regionsRepository.UpdateAsync(regionDomainModel ,id );
+           
 
-            return Ok(regionDto);
+            
+
+            return Ok(regionDomainModel);
         }
         [HttpDelete]
         [Route("{Id:guid}")]
-        public IActionResult DeleteRegions( [FromForm] Guid Id)
+        public async Task<IActionResult> DeleteRegions( [FromForm] Guid Id)
         {
             //check if Id is valied or not 
-            var regionsDomain = dbContext.Regions.FirstOrDefault(a => a.Id == Id);
-            if(regionsDomain == null)
-            {
-                return NotFound();
-            }
+            //var regionsDomain = regionsRepository.DeleteAsync(Id);
+            //if(regionsDomain == null)
+            //{
+            //    return NotFound();
+            //}
+            //regionsDomain.Start();
             //delete regions
-            dbContext.Regions.Remove(regionsDomain);
-            dbContext.SaveChanges();
+            var exsistingRegion = await  dbContext.Regions.FirstOrDefaultAsync(a=>a.Id == Id);
+            dbContext.Regions.Remove(exsistingRegion);
+            await dbContext.SaveChangesAsync();
             return Ok();
         }
     }
