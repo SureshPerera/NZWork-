@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NZWork.API.Data;
@@ -15,11 +16,13 @@ namespace NZWork.API.Controllers
     {
         private readonly NZWalksDbContext dbContext;
         private readonly IRegionsRepository regionsRepository;
+       
 
         public RegainsController(NZWalksDbContext dbContext , IRegionsRepository regionsRepository)
         {
             this.dbContext = dbContext;
             this.regionsRepository = regionsRepository;
+            
         }
         //GET:http:localahost:1235/api/Regains
         [HttpGet]
@@ -39,6 +42,7 @@ namespace NZWork.API.Controllers
                     RegionImgUrl = item.RegionImgUrl
                 });
             }
+
             //return DTO 
             return Ok(regionDto);
         }

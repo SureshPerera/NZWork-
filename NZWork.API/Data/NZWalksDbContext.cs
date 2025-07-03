@@ -12,5 +12,7 @@ namespace NZWork.API.Data
         public DbSet<Difficulty> Difficulties{ get; set; }
         public DbSet<Region> Regions{ get; set; }
         public DbSet<Work> Works{ get; set; }
+
+
     }
 }

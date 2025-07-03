@@ -1,6 +1,10 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using NZWork.API.Data;
+using NZWork.API.Mappings;
 using NZWork.API.Repositories;
+
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,6 +22,9 @@ builder.Services.AddDbContext<NZWalksDbContext>(options =>
 //    options.UseSqlServer(builder.Configuration.GetConnectionString("NZWalksConnectionString") ?? throw new InvalidOperationException("Connection string 'NZWalksConnectionString' not found.")));
 
 builder.Services.AddScoped<IRegionsRepository,SqlRegionRepository>();
+builder.Services.AddScoped<IWorkRepository,SqlWorksRepository>();
+//builder.Services.AddAutoMapper(typeof(AutomapperProfiles));
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
